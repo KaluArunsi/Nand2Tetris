@@ -1,0 +1,36 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/3/a/RAM64.hdl
+/**
+ * Memory of sixty four 16-bit registers.
+ * If load is asserted, the value of the register selected by
+ * address is set to in; Otherwise, the value does not change.
+ * The value of the selected register is emitted by out.
+ */
+CHIP RAM64 {
+    IN in[16], load, address[6];
+    OUT out[16];
+
+    PARTS:
+    //// Replace this comment with your code.
+    /*
+    The logic here is since DMux8Way and Mux8Way will have to share same addresses (input & output respectively)
+    And it has to be 3 bits, same as the RAM8 address, we split the buses
+    The idea is to have same 3 bit bus for DMux and Mux, while the RAM8 all share another set of 3
+    It reduces compute time, and halves the operation since only one half (of the 6-bit address split)
+    Can be right, so instantly it checks for 0-2, if yes, the output is instant
+    If no, it returns the operation for 3-5 on the RAM8
+    This streamlines RAM & Register selection by address, and the operation result no matter if load is zero or one
+    */
+    DMux8Way(in=load, sel=address[0..2], a=a, b=b, c=c, d=d, e=e, f=f, g=g, h=h);
+    RAM8(in=in, load=a, address=address[3..5], out=o1);
+    RAM8(in=in, load=b, address=address[3..5], out=o2);
+    RAM8(in=in, load=c, address=address[3..5], out=o3);
+    RAM8(in=in, load=d, address=address[3..5], out=o4);
+    RAM8(in=in, load=e, address=address[3..5], out=o5);
+    RAM8(in=in, load=f, address=address[3..5], out=o6);
+    RAM8(in=in, load=g, address=address[3..5], out=o7);
+    RAM8(in=in, load=h, address=address[3..5], out=o8);
+    Mux8Way16(a=o1, b=o2, c=o3, d=o4, e=o5, f=o6, g=o7, h=o8, sel=address[0..2], out=out);
+}
